@@ -1,17 +1,18 @@
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class Post {
   final int userId, id;
-  final String title;
-  final String body;
+  final String title, body;
+  String name, username;
 
   Post({
     required this.userId,
     required this.id,
     required this.title,
     required this.body,
+
+    // Initialize with empty string
+    this.name = '',
+    this.username = '',
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -21,17 +22,5 @@ class Post {
       title: json['title'],
       body: json['body'],
     );
-  }
-}
-
-Future<List<Post>> fetchPosts() async {
-  final response =
-      await http.get(Uri.parse('https://jsonplaceholder.typicode.com/posts'));
-
-  if (response.statusCode == 200) {
-    List jsonResponse = json.decode(response.body);
-    return jsonResponse.map((post) => Post.fromJson(post)).toList();
-  } else {
-    throw Exception('Failed to load posts');
   }
 }

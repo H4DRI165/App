@@ -9,12 +9,12 @@ class TopicItem extends StatelessWidget {
   final String content;
 
   const TopicItem({
-    Key? key,
+    super.key,
     required this.name,
     required this.userName,
     required this.title,
     required this.content,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +29,18 @@ class TopicItem extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(
-                      Icons.person,
-                      color: putih,
-                      size: 30,
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: kelabu,
+                      ),
+                      child: const Icon(
+                        Icons.person,
+                        color: putih,
+                        size: 30,
+                      ),
                     ),
                     const SizedBox(width: 20),
                     Column(
@@ -44,7 +52,7 @@ class TopicItem extends StatelessWidget {
                         ),
                         Text(
                           userName,
-                          style: const TextStyle(color: putih),
+                          style: const TextStyle(color: kelabu),
                         ),
                       ],
                     ),
@@ -52,13 +60,17 @@ class TopicItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  _truncateString(title, 40),
+                  _truncateString(title, 50),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis, // Truncate with ellipsis (...) if overflow
                   style: const TextStyle(
                       color: putih, fontWeight: FontWeight.bold, fontSize: 15, ),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  _truncateString(content.replaceAll('\n', ''), 100),
+                  _truncateString(content.replaceAll('\n', ''), 200),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                       color: putih,
                       fontWeight: FontWeight.normal,
@@ -81,7 +93,7 @@ class TopicItem extends StatelessWidget {
     if (text.length <= maxLength) {
       return text;
     } else {
-      return text.substring(0, maxLength) + '...';
+      return '${text.substring(0, maxLength)}...';
     }
   }
 }

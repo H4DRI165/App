@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:post_app/colour/colour.dart';
 import 'package:post_app/screen/home.dart';
+import 'package:post_app/screen/search_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -12,11 +13,15 @@ class MyApp extends StatelessWidget {
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Tweeter',
+      title: 'Forum',
       theme: ThemeData(
         primaryColor: hitam,
       ),
-      home: const Home(),
+      initialRoute: '/', // Define initial route
+      routes: {
+        '/': (context) => Home(),
+        '/search': (context) =>  const SearchPage(), // SearchPage route
+      },
     );
   }
 }
