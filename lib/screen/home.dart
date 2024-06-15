@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:post_app/screen/search_page.dart';
 import 'package:post_app/widgets/topic_item.dart';
@@ -6,11 +7,18 @@ import 'package:post_app/model/post.dart';
 import '../constant/colour.dart';
 import '../services/data_service.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key, required this.postService});
 
   //  Create instance
   final PostService postService;
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -75,15 +83,25 @@ class Home extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          child: Text(
-            'Topic',
-            style: TextStyle(
-              color: putih,
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Topic',
+                style: TextStyle(
+                  color: putih,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              GestureDetector(
+                  onTap: () {
+                    _refreshPosts();
+                  },
+                  child: const Icon(Icons.refresh, color: putih))
+            ],
           ),
         ),
         Container(
@@ -91,35 +109,57 @@ class Home extends StatelessWidget {
           height: 0.5,
         ),
         Expanded(
-          child: FutureBuilder<List<Post>>(
-            future: postService
-                .fetchPosts(), // Use the instance of DataService to call fetchPosts
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No posts available'));
-              } else {
-                return ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    final post = snapshot.data![index];
-                    return TopicItem(
-                      id: post.id.toString(),
-                      name: post.name,
-                      email: post.email,
-                      title: post.title,
-                      content: post.body,
-                    );
-                  },
-                );
-              }
-            },
-          ),
+          child: _buildPostList(),
         ),
       ],
     );
+  }
+
+  Widget _buildPostList() {
+    return FutureBuilder<List<Post>>(
+      future: widget.postService.fetchPosts(),
+      builder: (context, snapshot) {
+        if (_isLoading || snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No posts available'));
+        } else {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final post = snapshot.data![index];
+              return TopicItem(
+                id: post.id.toString(),
+                name: post.name,
+                email: post.email,
+                title: post.title,
+                content: post.body,
+              );
+            },
+          );
+        }
+      },
+    );
+  }
+
+  void _refreshPosts() {
+    setState(() {
+      _isLoading = true;
+    });
+
+    widget.postService.fetchPosts().then((_) {
+      setState(() {
+        _isLoading = false;
+      });
+    }).catchError((error) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (kDebugMode) {
+        print('Error fetching posts: $error');
+      }
+    });
   }
 }

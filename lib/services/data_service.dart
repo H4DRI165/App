@@ -1,4 +1,8 @@
 import 'dart:convert';
+import 'package:connectivity/connectivity.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import '../constant/colour.dart';
 import '../model/comment.dart';
 import '../model/post.dart';
 import 'package:http/http.dart' as http;
@@ -21,50 +25,67 @@ class DataService implements PostService {
     return _instance;
   }
 
+  Future<bool> _isOnline() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    return connectivityResult != ConnectivityResult.none;
+  }
+
   //  Fetch posts
   @override
   Future<List<Post>> fetchPosts() async {
-    try {
-      // Fetch users data
-      final usersResponse = await http
-          .get(Uri.parse('https://jsonplaceholder.typicode.com/users'));
+    if (await _isOnline()) {
+      try {
+        // Fetch users data
+        final usersResponse = await http
+            .get(Uri.parse('https://jsonplaceholder.typicode.com/users'));
 
-      if (usersResponse.statusCode == 200) {
-        List<dynamic> usersJson = json.decode(usersResponse.body);
+        if (usersResponse.statusCode == 200) {
+          List<dynamic> usersJson = json.decode(usersResponse.body);
 
-        // Create a map of id to user data for quick lookup
-        Map<int, Map<String, dynamic>> userDataMap = {};
-        for (var user in usersJson) {
-          userDataMap[user['id']] = user;
-        }
+          // Create a map of id to user data for quick lookup
+          Map<int, Map<String, dynamic>> userDataMap = {};
+          for (var user in usersJson) {
+            userDataMap[user['id']] = user;
+          }
 
-        // Fetch posts data
-        final postsResponse = await http
-            .get(Uri.parse('https://jsonplaceholder.typicode.com/posts'));
+          // Fetch posts data
+          final postsResponse = await http
+              .get(Uri.parse('https://jsonplaceholder.typicode.com/posts'));
 
-        if (postsResponse.statusCode == 200) {
-          List<dynamic> postsJson = json.decode(postsResponse.body);
+          if (postsResponse.statusCode == 200) {
+            List<dynamic> postsJson = json.decode(postsResponse.body);
 
-          // Filter posts to include only those with id existing in userDataMap
-          List<Post> posts = postsJson
-              .where((postJson) => userDataMap.containsKey(postJson['id']))
-              .map((postJson) {
-            int id = postJson['id'];
-            Map<String, dynamic> user = userDataMap[id] ?? {};
-            return Post.fromJson(postJson)
-              ..name = user['name'] ?? ''
-              ..email = user['email'] ?? '';
-          }).toList();
+            // Filter posts to include only those with id existing in userDataMap
+            List<Post> posts = postsJson
+                .where((postJson) => userDataMap.containsKey(postJson['id']))
+                .map((postJson) {
+              int id = postJson['id'];
+              Map<String, dynamic> user = userDataMap[id] ?? {};
+              return Post.fromJson(postJson)
+                ..name = user['name'] ?? ''
+                ..email = user['email'] ?? '';
+            }).toList();
 
-          return posts;
+            return posts;
+          } else {
+            throw Exception('Failed to load posts');
+          }
         } else {
-          throw Exception('Failed to load posts');
+          throw Exception('Failed to load users');
         }
-      } else {
-        throw Exception('Failed to load users');
+      } catch (e) {
+        throw Exception('Failed to fetch data: $e');
       }
-    } catch (e) {
-      throw Exception('Failed to fetch data: $e');
+    } else {
+      // Handle no internet scenario
+      await Future.delayed(
+        const Duration(seconds: 5), // Buffer for 5 seconds
+      );
+      Fluttertoast.showToast(
+          msg: 'No internet connection. Please try again.',
+          toastLength: Toast.LENGTH_SHORT,
+          textColor: putih);
+      throw Exception('No internet connection');
     }
   }
 
