@@ -2,7 +2,7 @@
 class Post {
   final int userId, id;
   final String title, body;
-  String name, username;
+  String name, email;
 
   Post({
     required this.userId,
@@ -12,7 +12,7 @@ class Post {
 
     // Initialize with empty string
     this.name = '',
-    this.username = '',
+    this.email = '',
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {

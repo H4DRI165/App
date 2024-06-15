@@ -1,6 +1,5 @@
 import 'dart:convert';
-
-
+import '../model/comment.dart';
 import '../model/post.dart';
 import 'package:http/http.dart' as http;
 
@@ -36,7 +35,7 @@ class DataService {
             Map<String, dynamic> user = userDataMap[id] ?? {};
             return Post.fromJson(postJson)
               ..name = user['name'] ?? ''
-              ..username = user['username'] ?? '';
+              ..email = user['email'] ?? '';
           }).toList();
 
           return posts;
@@ -69,6 +68,27 @@ class DataService {
       return filteredPosts;
     } catch (e) {
       throw Exception('Failed to search posts: $e');
+    }
+  }
+
+  // Fetch comments for a specific post using the user ID
+  Future<List<Comment>> fetchCommentsForPost(String id) async {
+    try {
+      final commentsResponse = await http.get(Uri.parse(
+          'https://jsonplaceholder.typicode.com/comments?postId=$id'));
+
+      if (commentsResponse.statusCode == 200) {
+        List<dynamic> commentsJson = json.decode(commentsResponse.body);
+        List<Comment> comments = commentsJson
+            .map((commentJson) => Comment.fromJson(commentJson))
+            .toList();
+
+        return comments;
+      } else {
+        throw Exception('Failed to load comments for post');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch comments: $e');
     }
   }
 }

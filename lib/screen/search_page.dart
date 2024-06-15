@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:post_app/colour/colour.dart';
 import 'package:post_app/widgets/topic_item.dart';
 
+import '../constant/colour.dart';
 import '../model/post.dart';
 import '../services/data_service.dart';
 
@@ -97,8 +97,9 @@ class _SearchPageState extends State<SearchPage> {
         itemBuilder: (context, index) {
           final post = searchResults[index];
           return TopicItem(
+            id: post.id.toString(),
             name: post.name,
-            userName: '@${post.username}',
+            email: '@${post.email}',
             title: post.title,
             content: post.body,
           );

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:post_app/colour/colour.dart';
 import 'package:post_app/screen/search_page.dart';
 import 'package:post_app/widgets/topic_item.dart';
 import 'package:post_app/model/post.dart';
 
+import '../constant/colour.dart';
 import '../services/data_service.dart';
 
 class Home extends StatelessWidget {
@@ -51,8 +51,9 @@ class Home extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final post = snapshot.data![index];
                       return TopicItem(
+                        id: post.id.toString(),
                         name: post.name,
-                        userName: '@${post.username}',
+                        email: '@${post.email}',
                         title: post.title,
                         content: post.body,
                       );
