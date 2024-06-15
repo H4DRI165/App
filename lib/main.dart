@@ -4,11 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:post_app/screen/home.dart';
 import 'package:post_app/screen/search_page.dart';
 import 'package:post_app/screen/topic_detail.dart';
+import 'package:post_app/services/data_service.dart';
 
 import 'constant/colour.dart';
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final DataService _dataService =
+      DataService(); // Instantiate your PostService implementation
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +26,9 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/', // Define initial route
       routes: {
-        '/': (context) => Home(),
+        '/': (context) => Home(
+              postService: _dataService,
+            ),
         '/search': (context) => const SearchPage(),
       },
       onGenerateRoute: (settings) {
@@ -49,5 +55,5 @@ class MyApp extends StatelessWidget {
 }
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }

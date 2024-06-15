@@ -24,58 +24,64 @@ class TopicDetail extends StatelessWidget {
     return Scaffold(
       backgroundColor: hitam,
       appBar: buildAppBar(context),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TopicItem(
-            id: id,
-            name: topicData['name'] ?? '',
-            email: topicData['email'] ?? '',
-            title: topicData['title'] ?? '',
-            content: topicData['content'] ?? '',
-            enableGesture: false,
-            truncateTitleContent: false,
+      body: buildBody(id),
+    );
+  }
+
+  Widget buildBody(String id) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TopicItem(
+          id: id,
+          name: topicData['name'] ?? '',
+          email: topicData['email'] ?? '',
+          title: topicData['title'] ?? '',
+          content: topicData['content'] ?? '',
+          enableGesture: false,
+          truncateTitleContent: false,
+        ),
+        buildRepostLike(),
+        Container(
+          color: kelabuWithOpacity,
+          height: 0.5,
+        ),
+        buildLikeShare(),
+        Container(
+          color: kelabuWithOpacity,
+          height: 0.5,
+        ),
+        Expanded(
+          child: FutureBuilder<List<Comment>>(
+            future: id.isNotEmpty
+                ? _dataService.fetchCommentsForPost(id)
+                : Future.value([]),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text('No comment available'));
+              } else {
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    final comment = snapshot.data![index];
+                    return CommentItem(
+                      id: comment.id.toString(),
+                      authorEmail: topicData['email'] ?? '',
+                      comment: comment.body,
+                      commenterEmail: comment.email,
+                      truncateComment: true,
+                    );
+                  },
+                );
+              }
+            },
           ),
-          buildRepostLike(),
-          Container(
-            color: kelabuWithOpacity,
-            height: 0.5,
-          ),
-          buildLikeShare(),
-          Container(
-            color: kelabuWithOpacity,
-            height: 0.5,
-          ),
-          Expanded(
-            child: FutureBuilder<List<Comment>>(
-              future: id.isNotEmpty ? _dataService.fetchCommentsForPost(id) : Future.value([]),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No comment available'));
-                } else {
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      final comment = snapshot.data![index];
-                      return CommentItem(
-                        id: comment.id.toString(),
-                        authorEmail: topicData['email'] ?? '',
-                        comment: comment.body,
-                        commenterEmail: comment.email,
-                        truncateComment: true,
-                      );
-                    },
-                  );
-                }
-              },
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

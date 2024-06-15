@@ -3,8 +3,26 @@ import '../model/comment.dart';
 import '../model/post.dart';
 import 'package:http/http.dart' as http;
 
-class DataService {
+abstract class PostService {
+  Future<List<Post>> fetchPosts();
+  Future<List<Post>> searchPosts(String query);
+  Future<List<Comment>> fetchCommentsForPost(String id);
+}
+
+class DataService implements PostService {
+  // Private constructor
+  DataService._();
+
+  // Singleton instance
+  static final DataService _instance = DataService._();
+
+  // Factory method to provide access to the singleton instance
+  factory DataService() {
+    return _instance;
+  }
+
   //  Fetch posts
+  @override
   Future<List<Post>> fetchPosts() async {
     try {
       // Fetch users data
@@ -50,6 +68,7 @@ class DataService {
     }
   }
 
+  @override
   Future<List<Post>> searchPosts(String query) async {
     try {
       List<Post> posts = await fetchPosts();
@@ -71,7 +90,7 @@ class DataService {
     }
   }
 
-  // Fetch comments for a specific post using the user ID
+  @override
   Future<List<Comment>> fetchCommentsForPost(String id) async {
     try {
       final commentsResponse = await http.get(Uri.parse(

@@ -35,44 +35,48 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: hitam,
-      appBar: AppBar(
-        backgroundColor: hitam,
-        iconTheme: const IconThemeData(color: putih),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            size: 30, // Adjust the size as needed
-          ),
-          onPressed: () {
-            Navigator.pop(context); // Navigate back
-          },
-        ),
-        title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          decoration: BoxDecoration(
-            color: kelabuWithOpacity,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: TextField(
-            onChanged: (value) {
-              setState(() {
-                query = value;
-              });
+      appBar: buildAppBar(context),
+      body: _buildSearchResults(),
+    );
+  }
 
-              // Search when input change
-              searchPosts(query);
-            },
-            style: const TextStyle(color: biru),
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.all(0),
-              border: InputBorder.none,
-              hintText: 'Search',
-              hintStyle: TextStyle(color: kelabu),
-            ),
+  AppBar buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: hitam,
+      iconTheme: const IconThemeData(color: putih),
+      leading: IconButton(
+        icon: const Icon(
+          Icons.arrow_back,
+          size: 30, // Adjust the size as needed
+        ),
+        onPressed: () {
+          Navigator.pop(context); // Navigate back
+        },
+      ),
+      title: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        decoration: BoxDecoration(
+          color: kelabuWithOpacity,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: TextField(
+          onChanged: (value) {
+            setState(() {
+              query = value;
+            });
+
+            // Search when input change
+            searchPosts(query);
+          },
+          style: const TextStyle(color: biru),
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.all(0),
+            border: InputBorder.none,
+            hintText: 'Search',
+            hintStyle: TextStyle(color: kelabu),
           ),
         ),
       ),
-      body: _buildSearchResults(),
     );
   }
 
